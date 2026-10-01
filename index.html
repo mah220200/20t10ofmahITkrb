@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chúc mừng 20/10/2026</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <!-- MediaPipe Libraries for Hand Tracking -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+
+    <style>
+        :root {
+            --primary-pink: #ff7eb3;
+            --secondary-purple: #ff758c;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            overflow: hidden;
+            background: #0f0c29;
+            background: linear-gradient(to right, #24243e, #302b63, #0f0c29);
+            color: white;
+            user-select: none;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .glass-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.2s ease;
+        }
+        
+        .glass-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+        .glass-btn:active {
+            transform: scale(0.95);
+        }
+
+        .shake {
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+            border-color: #ff4d4d !important;
+        }
+
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+
+        .unlock-transition {
+            animation: fadeZoomOut 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes fadeZoomOut {
+            0% { opacity: 1; transform: scale(1); filter: blur(0); }
+            100% { opacity: 0; transform: scale(1.5); filter: blur(10px); visibility: hidden; }
+        }
+
+        #main-content {
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 1.5s ease-in;
+            background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%);
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .show-main {
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+
+        #bg-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: auto;
+        }
+
+        .romantic-text {
+            font-family: 'Dancing Script', cursive;
+        }
+
+        .envelope-wrapper {
+            position: relative;
+            z-index: 10;
+            width: 90vw;
+            max-width: 600px;
+            height: 350px;
+            perspective: 1000px;
+            transition: transform 0.3s ease;
+        }
+
+        .envelope {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: #ff758c;
+            border-radius: 10px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            transform-style: preserve-3d;
+            transition: transform 1s ease;
+        }
+
+        /* The back of the envelope */
+        .envelope::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: #ff5277;
+            border-radius: 10px;
+        }
+
+        /* The Flap */
+        .flap {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            background: #ff7eb3;
+            clip-path: polygon(0 0, 50% 100%, 100% 0);
+            transform-origin: top;
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 4;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+            backface-visibility: hidden;
+        }
+
+        /* The Letter Inside */
+        .letter {
+            position: absolute;
+            bottom: 5%;
+            left: 5%;
+            width: 90%;
+            height: 90%;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1), height 0.8s;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: #d81b60;
+        }
+
+        .letter > * {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        /* Envelope Front Pockets */
+        .envelope-front {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 3;
+            pointer-events: none;
+        }
+        .envelope-front::before, .envelope-front::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            width: 50%;
+            height: 100%;
+            background: #ff758c;
+        }
+        .envelope-front::before {
+            left: 0;
+            clip-path: polygon(0 0, 100% 100%, 0 100%);
+            border-bottom-left-radius: 10px;
+        }
+        .envelope-front::after {
+            right: 0;
+            clip-path: polygon(100% 0, 100% 100%, 0 100%);
+            border-bottom-right-radius: 10px;
+        }
+
+        /* Opened State Classes */
+        .envelope.is-open .flap {
+            transform: rotateX(180deg);
+            z-index: 1;
+        }
+        .envelope.is-open .letter {
+            transform: translateY(-50px) scale(1.05);
+            z-index: 5;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+        }
+        .envelope.is-open .letter > * {
+            opacity: 1;
+            transition-delay: 0.25s;
+        }
+
+        #camera-preview-container {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            width: 180px;
+            height: 135px;
+            border-radius: 15px;
+            overflow: hidden;
+            border: 3px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            z-index: 20;
+            background: #000;
+        }
+        
+        #video-element {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1); /* Mirror effect */
+        }
+
+        .status-badge {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            font-size: 0.75rem;
+            padding: 8px 15px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.25);
+            backdrop-filter: blur(10px);
+            z-index: 20;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            transition: all 0.3s ease;
+            color: #fff;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+
+        #countdown-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 50;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            font-size: 8rem;
+            font-weight: bold;
+            color: white;
+            text-shadow: 0 0 20px #ff7eb3;
+        }
+
+        /* Photobooth UI */
+        #photobooth-ui {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 40;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        #captured-canvas {
+            max-width: 90%;
+            max-height: 48vh;
+            border-radius: 10px;
+            box-shadow: 0 0 30px rgba(255, 126, 179, 0.5);
+            margin-bottom: 20px;
+        }
+
+        .frame-btn {
+            width: 52px;
+            height: 52px;
+            border-radius: 10px;
+            background-size: cover;
+            background-position: center;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .frame-btn.active { border-color: #ff7eb3; transform: scale(1.1); }
+        #frame-options {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+            max-width: min(420px, 90vw);
+            margin-bottom: 24px;
+        }
+        .capture-settings {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 0 0 14px;
+            color: white;
+            font-size: 0.9rem;
+        }
+        #capture-settings[hidden] {
+            display: none;
+        }
+        #capture-preferences {
+            position: absolute;
+            top: 16px;
+            left: 50%;
+            z-index: 45;
+            width: min(520px, 92vw);
+            transform: translateX(-50%);
+            padding: 10px 14px;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 18px;
+            background: rgba(35, 25, 45, 0.72);
+            backdrop-filter: blur(12px);
+            text-align: center;
+        }
+        .capture-settings select {
+            border: 1px solid rgba(255,255,255,0.35);
+            border-radius: 999px;
+            padding: 8px 14px;
+            color: white;
+            background: #302b3f;
+        }
+        #shot-progress {
+            min-height: 1.25rem;
+            margin: -12px 0 14px;
+            color: rgba(255,255,255,0.8);
+            font-size: 0.85rem;
+            text-align: center;
+        }
+        .photobooth-actions {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="lock-screen" class="fixed inset-0 flex items-center justify-center z-50 bg-[url('https://images.unsplash.com/photo-1518895949257-7621c3c786d7?q=80&w=2000&auto=format&fit=crop')] bg-cover bg-center">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+        
+        <div id="numpad-container" class="glass-panel rounded-3xl p-8 max-w-sm w-full mx-4 flex flex-col items-center relative z-10">
+            <h2 class="text-2xl font-light mb-2 text-white/90">Nhập Mật Khẩu</h2>
+            <p class="text-xs text-white/50 mb-6 tracking-widest uppercase text-center">Gợi ý: Ngày Phụ Nữ VN năm 2026<br>(6 chữ số)</p>
+            
+            <!-- Passcode Dots (6 dots for 201026) -->
+            <div id="passcode-dots" class="flex gap-3 mb-8">
+                <div class="w-3 h-3 rounded-full border-2 border-white/40 transition-colors duration-300 dot"></div>
+                <div class="w-3 h-3 rounded-full border-2 border-white/40 transition-colors duration-300 dot"></div>
+                <div class="w-3 h-3 rounded-full border-2 border-white/40 transition-colors duration-300 dot"></div>
+                <div class="w-3 h-3 rounded-full border-2 border-white/40 transition-colors duration-300 dot"></div>
+                <div class="w-3 h-3 rounded-full border-2 border-white/40 transition-colors duration-300 dot"></div>
+                <div class="w-3 h-3 rounded-full border-2 border-white/40 transition-colors duration-300 dot"></div>
+            </div>
+
+            <!-- Numpad -->
+            <div class="grid grid-cols-3 gap-4 w-full px-2">
+                <button class="glass-btn w-14 h-14 rounded-full flex items-center justify-center text-xl font-light mx-auto" onclick="enterDigit(1)">1</button>
+                <button class="glass-btn w-14 h-14 rounded-full flex items-center justify-center text-xl font-light mx-auto" onclick="enterDigit(2)">2</button>
+                <button class="glass-btn w-14 h-14 rounded-full flex items-center justify-center text-xl font-light mx-auto" onclick="enterDigit(3)">3</button>
+                <button class="glass-btn w-14 h-14 rounded-full flex items-center justify-center text-xl font-light mx-auto" onclick="enterDigit(4)">4</button>
+                <button class="glass-btn w-14 h-14 rounded-full flex items-center justify-center text-xl font-light mx-auto" onclick="enterDigit(5)">5</button>
+                <button class="glass-btn w-14 h-14 rounded-full flex items-center justify-center text-xl font-light mx-auto" onclick="enterDigit(6)">6</button>
+                <button class="glass-btn w-14 h-14 rounded-full flex items-center justify-center text-xl font-light mx-auto" onclick="enterDigit(7)">7</button>
+                <button class="glass-btn w-14 h-14 rounded-full flex items-center justify-center text-xl font-light mx-auto" onclick="enterDigit(8)">8</button>
+                <button class="glass-btn w-14 h-14 rounded-full flex items-center justify-center text-xl font-light mx-auto" onclick="enterDigit(9)">9</button>
+                <div></div>
+                <button class="glass-btn w-14 h-14 rounded-full flex items-center justify-center text-xl font-light mx-auto" onclick="enterDigit(0)">0</button>
+                <button class="w-14 h-14 rounded-full flex items-center justify-center text-sm font-medium mx-auto text-white/60 hover:text-white transition-colors" onclick="clearPasscode()">DEL</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="main-content">
+        <canvas id="bg-canvas"></canvas>
+
+        <div id="capture-preferences">
+            <button id="capture-settings-toggle" class="glass-btn px-5 py-2 rounded-full text-white/90 text-sm" onclick="toggleCaptureSettings()" aria-expanded="true" aria-controls="capture-settings">Ẩn tùy chọn chụp</button>
+            <div id="capture-settings" class="capture-settings">
+                <label for="countdown-duration">Đếm ngược:</label>
+                <select id="countdown-duration" aria-label="Thời gian đếm ngược">
+                    <option value="3">3 giây</option>
+                    <option value="4">4 giây</option>
+                    <option value="5">5 giây</option>
+                    <option value="6">6 giây</option>
+                    <option value="7">7 giây</option>
+                    <option value="8">8 giây</option>
+                    <option value="9">9 giây</option>
+                    <option value="10">10 giây</option>
+                    <option value="11">11 giây</option>
+                    <option value="12">12 giây</option>
+                </select>
+                <span>Khung nhiều ảnh sẽ tự chụp lần lượt từng ô.</span>
+            </div>
+        </div>
+        
+        <!-- Camera Preview -->
+        <div id="camera-preview-container">
+            <video id="video-element" autoplay playsinline></video>
+        </div>
+
+        <!-- Envelope 3D -->
+        <div class="envelope-wrapper" id="envelope-wrapper">
+            <div class="envelope" id="envelope">
+                <div class="flap"></div>
+                <div class="letter">
+                    <h1 class="romantic-text text-4xl md:text-5xl font-bold mb-4">20/10/2026</h1>
+                    <p class="text-lg md:text-xl font-medium mb-3">
+                        Chúc mừng ngày Phụ nữ Việt Nam!
+                    </p>
+                    <div class="h-px w-24 bg-pink-300 mx-auto my-3"></div>
+                    <p class="text-sm md:text-md italic text-gray-700">
+                        Đặc biệt chúc người yêu xinh đẹp của anh và cô con gái bé bỏng của ba luôn vui vẻ, ngập tràn tình yêu thương! ❤️
+                    </p>
+                </div>
+                <div class="envelope-front"></div>
+            </div>
+        </div>
+
+        <!-- Photobooth UI -->
+        <div id="countdown-overlay">3</div>
+        
+        <div id="photobooth-ui">
+            <h3 class="romantic-text text-4xl mb-4 text-white">Lưu giữ kỷ niệm</h3>
+            <canvas id="captured-canvas"></canvas>
+            
+            <div id="frame-options" aria-label="Chọn khung ảnh">
+                <button class="frame-btn active bg-pink-200" onclick="selectFrame(0)" title="Trái tim" aria-label="Khung trái tim">💖</button>
+                <button class="frame-btn bg-white" onclick="selectFrame(1)" title="Polaroid" aria-label="Khung Polaroid">📸</button>
+                <button class="frame-btn bg-yellow-200" onclick="selectFrame(2)" title="Ánh kim vàng" aria-label="Khung ánh kim vàng">✨</button>
+                <button class="frame-btn bg-rose-300" onclick="selectFrame(3)" title="Hồng ngọt ngào" aria-label="Khung hồng ngọt ngào">💕</button>
+                <button class="frame-btn bg-gray-800" onclick="selectFrame(4)" title="Cuộn phim" aria-label="Khung cuộn phim">🎞️</button>
+                <button class="frame-btn bg-purple-200" onclick="selectFrame(5)" title="Oải hương" aria-label="Khung oải hương">💜</button>
+                <button class="frame-btn bg-green-200" onclick="selectFrame(6)" title="Khu vườn" aria-label="Khung khu vườn">🌷</button>
+                <button class="frame-btn bg-gray-800 text-white" onclick="selectFrame(7)" title="Dải phim - 3 ảnh" aria-label="Dải phim ba ảnh">▤</button>
+                <button class="frame-btn bg-amber-200" onclick="selectFrame(8)" title="Khung vui nhộn - 4 ảnh" aria-label="Khung vui nhộn bốn ảnh">🌼</button>
+                <button class="frame-btn bg-pink-100" onclick="selectFrame(9)" title="Khung pastel - 3 ảnh" aria-label="Khung pastel ba ảnh">🐱</button>
+            </div>
+            <div id="shot-progress" aria-live="polite"></div>
+
+            <div class="photobooth-actions">
+                <button id="next-photo-btn" class="glass-btn px-6 py-2 rounded-full text-white font-medium" onclick="startNextPhoto()">📸 Chụp tiếp</button>
+                <button class="glass-btn px-6 py-2 rounded-full text-white font-medium" onclick="downloadPhoto()">📥 Tải xuống</button>
+                <button class="glass-btn px-6 py-2 rounded-full text-white/70 font-medium" onclick="closePhotobooth()">❌ Đóng</button>
+            </div>
+        </div>
+
+        <!-- Status Tracking -->
+        <div id="tracking-status" class="status-badge">
+            <div class="flex items-center gap-2">
+                <div class="w-2 h-2 rounded-full bg-yellow-400 animate-pulse" id="status-indicator"></div>
+                <span id="status-text" class="font-semibold">Đang tải nhận diện tay...</span>
+            </div>
+            <div class="text-xs opacity-80 mt-1">
+                👋 Xòe tay: Mở thư<br>
+                ✊ Nắm tay: Đóng thư<br>
+                ✌️ Giơ chữ V: Chụp ảnh
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Security Rules
+        document.addEventListener('contextmenu', event => event.preventDefault());
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'F12' || 
+               (e.ctrlKey && e.shiftKey && e.key === 'I') || 
+               (e.ctrlKey && e.key === 'u') || 
+               (e.ctrlKey && e.key === 'U')) {
+                e.preventDefault();
+            }
+        });
+
+        // Passcode Logic (6 digits)
+        const CORRECT_PASS = "201026";
+        let currentPass = "";
+        const dots = document.querySelectorAll('.dot');
+        const lockScreen = document.getElementById('lock-screen');
+        const mainContent = document.getElementById('main-content');
+        const numpadContainer = document.getElementById('numpad-container');
+
+        function updateDots() {
+            dots.forEach((dot, index) => {
+                if (index < currentPass.length) {
+                    dot.classList.add('bg-white');
+                    dot.classList.remove('border-white/40');
+                } else {
+                    dot.classList.remove('bg-white');
+                    dot.classList.add('border-white/40');
+                }
+            });
+        }
+
+        function enterDigit(digit) {
+            if (currentPass.length < 6) {
+                currentPass += digit;
+                updateDots();
+
+                if (currentPass.length === 6) {
+                    setTimeout(checkPasscode, 200);
+                }
+            }
+        }
+
+        function clearPasscode() {
+            currentPass = "";
+            updateDots();
+            numpadContainer.classList.remove('shake');
+        }
+
+        function checkPasscode() {
+            if (currentPass === CORRECT_PASS) {
+                numpadContainer.style.borderColor = "#4ade80"; 
+                lockScreen.classList.add('unlock-transition');
+                
+                setTimeout(() => {
+                    lockScreen.style.display = 'none';
+                    mainContent.classList.add('show-main');
+                    initMainExperience();
+                }, 1200);
+            } else {
+                numpadContainer.classList.remove('shake');
+                void numpadContainer.offsetWidth; 
+                numpadContainer.classList.add('shake');
+                if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+                setTimeout(() => { clearPasscode(); }, 500);
+            }
+        }
+
+        let bgCanvas, bgCtx;
+        let particles = [];
+        let interactionPoints = [];
+
+        class Particle {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.size = Math.random() * 15 + 10;
+                this.vx = (Math.random() - 0.5) * 1;
+                this.vy = (Math.random() - 0.5) * 1 - 0.5;
+                this.color = Math.random() > 0.5 ? 'rgba(255, 117, 140, 0.7)' : 'rgba(255, 182, 193, 0.7)';
+                this.type = Math.random() > 0.3 ? 'heart' : 'circle';
+                this.friction = 0.95;
+            }
+
+            draw(ctx) {
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                if (this.type === 'heart') {
+                    const w = this.size;
+                    const h = this.size;
+                    const topCurveHeight = h * 0.3;
+                    ctx.moveTo(this.x, this.y + topCurveHeight);
+                    ctx.bezierCurveTo(this.x, this.y, this.x - w / 2, this.y, this.x - w / 2, this.y + topCurveHeight);
+                    ctx.bezierCurveTo(this.x - w / 2, this.y + (h + topCurveHeight) / 2, this.x, this.y + (h + topCurveHeight) / 2, this.x, this.y + h);
+                    ctx.bezierCurveTo(this.x, this.y + (h + topCurveHeight) / 2, this.x + w / 2, this.y + (h + topCurveHeight) / 2, this.x + w / 2, this.y + topCurveHeight);
+                    ctx.bezierCurveTo(this.x + w / 2, this.y, this.x, this.y, this.x, this.y + topCurveHeight);
+                } else {
+                    ctx.arc(this.x, this.y, this.size/2, 0, Math.PI * 2);
+                }
+                ctx.fill();
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+
+                if (this.x < -50) this.x = bgCanvas.width + 50;
+                if (this.x > bgCanvas.width + 50) this.x = -50;
+                if (this.y < -50) this.y = bgCanvas.height + 50;
+                if (this.y > bgCanvas.height + 50) this.y = -50;
+
+                let repulsed = false;
+                for (let pt of interactionPoints) {
+                    let dx = this.x - pt.x;
+                    let dy = this.y - pt.y;
+                    let distSq = dx * dx + dy * dy;
+                    let minDist = 150; 
+
+                    if (distSq < minDist * minDist) {
+                        let dist = Math.sqrt(distSq);
+                        let force = (minDist - dist) / minDist; 
+                        this.vx += (dx / dist) * force * 1.5;
+                        this.vy += (dy / dist) * force * 1.5;
+                        repulsed = true;
+                    }
+                }
+
+                this.vx *= this.friction;
+                this.vy *= this.friction;
+
+                if (!repulsed) {
+                    if (Math.abs(this.vx) < 0.2) this.vx += (Math.random() - 0.5) * 0.1;
+                    if (Math.abs(this.vy) < 0.2) this.vy -= Math.random() * 0.1; 
+                }
+            }
+        }
+
+        function initBackgroundCanvas() {
+            bgCanvas = document.getElementById('bg-canvas');
+            bgCtx = bgCanvas.getContext('2d');
+            
+            function resize() {
+                bgCanvas.width = window.innerWidth;
+                bgCanvas.height = window.innerHeight;
+            }
+            window.addEventListener('resize', resize);
+            resize();
+
+            let numParticles = Math.min(window.innerWidth / 10, 150);
+            for (let i = 0; i < numParticles; i++) {
+                particles.push(new Particle(Math.random() * bgCanvas.width, Math.random() * bgCanvas.height));
+            }
+
+            animateBgCanvas();
+        }
+
+        function animateBgCanvas() {
+            bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
+            for (let p of particles) {
+                p.update();
+                p.draw(bgCtx);
+            }
+            requestAnimationFrame(animateBgCanvas);
+        }
+
+        let isPhotoboothActive = false;
+        let isCountdownActive = false;
+        let isPhotoSequenceActive = false;
+        let photoboothHasOpened = false;
+        let photoShots = [];
+        let currentSelectedFrame = 0;
+        const capturedCanvas = document.getElementById('captured-canvas');
+        const capturedCtx = capturedCanvas.getContext('2d');
+        const videoElement = document.getElementById('video-element');
+
+        function startPhotoboothCountdown() {
+            if (isCountdownActive) return;
+            isPhotoboothActive = true;
+            isCountdownActive = true;
+            
+            const overlay = document.getElementById('countdown-overlay');
+            overlay.style.display = 'flex';
+            let count = Number(document.getElementById('countdown-duration').value);
+            overlay.innerText = count;
+
+            let interval = setInterval(() => {
+                if (count > 1) {
+                    count--;
+                    overlay.innerText = count;
+                } else {
+                    overlay.innerText = "📸";
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        overlay.style.display = 'none';
+                        takePhoto();
+                        isCountdownActive = false;
+                    }, 350);
+                }
+            }, 1000);
+        }
+
+        function takePhoto() {
+            if (!videoElement.videoWidth || !videoElement.videoHeight) {
+                document.getElementById('status-text').innerText = 'Camera chưa sẵn sàng để chụp.';
+                isCountdownActive = false;
+                isPhotoSequenceActive = false;
+                return;
+            }
+
+            const photo = document.createElement('canvas');
+            photo.width = videoElement.videoWidth;
+            photo.height = videoElement.videoHeight;
+            const ctx = photo.getContext('2d');
+            
+            ctx.translate(photo.width, 0);
+            ctx.scale(-1, 1);
+            ctx.drawImage(videoElement, 0, 0, photo.width, photo.height);
+            
+            if (!photoboothHasOpened) {
+                photoShots.length = 0;
+                photoboothHasOpened = true;
+                document.getElementById('photobooth-ui').style.display = 'flex';
+            }
+
+            const requiredShots = getRequiredShots(currentSelectedFrame);
+            if (photoShots.length < requiredShots) photoShots.push(photo);
+            renderPhotobooth();
+            if (isPhotoSequenceActive) {
+                if (photoShots.length < requiredShots) {
+                    setTimeout(startPhotoboothCountdown, 700);
+                } else {
+                    isPhotoSequenceActive = false;
+                }
+            }
+        }
+
+        function getRequiredShots(frameType) {
+            if (frameType === 7 || frameType === 9) return 3;
+            if (frameType === 8) return 4;
+            return 1;
+        }
+
+        function startNextPhoto() {
+            if (isCountdownActive) return;
+            const requiredShots = getRequiredShots(currentSelectedFrame);
+            if (photoShots.length >= requiredShots) {
+                photoShots.length = 0;
+                renderPhotobooth();
+            }
+            isPhotoSequenceActive = requiredShots > 1;
+            startPhotoboothCountdown();
+        }
+
+        function toggleCaptureSettings() {
+            const settings = document.getElementById('capture-settings');
+            const toggle = document.getElementById('capture-settings-toggle');
+            const isVisible = settings.hidden;
+            settings.hidden = !isVisible;
+            toggle.setAttribute('aria-expanded', String(isVisible));
+            toggle.innerText = isVisible ? 'Ẩn tùy chọn chụp' : 'Hiện tùy chọn chụp';
+        }
+
+        function updateShotProgress() {
+            const requiredShots = getRequiredShots(currentSelectedFrame);
+            const capturedCount = Math.min(photoShots.length, requiredShots);
+            const progress = document.getElementById('shot-progress');
+            const nextButton = document.getElementById('next-photo-btn');
+
+            if (requiredShots > 1) {
+                progress.innerText = `Đã chụp ${capturedCount}/${requiredShots} ảnh`;
+                nextButton.innerText = capturedCount >= requiredShots
+                    ? '🔄 Chụp lại bộ ảnh'
+                    : `📸 Chụp tiếp (${capturedCount + 1}/${requiredShots})`;
+            } else {
+                progress.innerText = photoShots.length ? 'Ảnh đã sẵn sàng để tải xuống' : 'Chưa có ảnh';
+                nextButton.innerText = '📸 Chụp ảnh khác';
+            }
+        }
+
+        function drawRoundedSlot(ctx, x, y, width, height, radius) {
+            const r = Math.min(radius, width / 2, height / 2);
+            ctx.beginPath();
+            ctx.moveTo(x + r, y);
+            ctx.lineTo(x + width - r, y);
+            ctx.quadraticCurveTo(x + width, y, x + width, y + r);
+            ctx.lineTo(x + width, y + height - r);
+            ctx.quadraticCurveTo(x + width, y + height, x + width - r, y + height);
+            ctx.lineTo(x + r, y + height);
+            ctx.quadraticCurveTo(x, y + height, x, y + height - r);
+            ctx.lineTo(x, y + r);
+            ctx.quadraticCurveTo(x, y, x + r, y);
+            ctx.closePath();
+        }
+
+        function drawPhotoSlot(ctx, photo, x, y, width, height, radius, index) {
+            drawRoundedSlot(ctx, x, y, width, height, radius);
+            ctx.save();
+            ctx.clip();
+            ctx.fillStyle = '#fffdfb';
+            ctx.fillRect(x, y, width, height);
+            if (photo) {
+                const scale = Math.max(width / photo.width, height / photo.height);
+                const drawWidth = photo.width * scale;
+                const drawHeight = photo.height * scale;
+                ctx.drawImage(photo, x + (width - drawWidth) / 2, y + (height - drawHeight) / 2, drawWidth, drawHeight);
+            } else {
+                ctx.fillStyle = '#b9a8a3';
+                ctx.font = '24px Inter, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(`ẢNH ${index + 1}`, x + width / 2, y + height / 2);
+            }
+            ctx.restore();
+        }
+
+        function drawFilmStrip() {
+            const width = 720;
+            const height = 1440;
+            capturedCanvas.width = width;
+            capturedCanvas.height = height;
+            capturedCtx.fillStyle = '#17151a';
+            capturedCtx.fillRect(0, 0, width, height);
+            const sideWidth = 70;
+            const slotX = 92;
+            const slotWidth = width - slotX * 2;
+            const slotHeight = 390;
+            const gap = 34;
+            capturedCtx.fillStyle = '#f3eaf0';
+            for (let y = 18; y < height - 18; y += 56) {
+                capturedCtx.fillRect(22, y, 28, 24);
+                capturedCtx.fillRect(width - 50, y, 28, 24);
+            }
+            for (let i = 0; i < 3; i++) {
+                const y = 42 + i * (slotHeight + gap);
+                drawPhotoSlot(capturedCtx, photoShots[i], slotX, y, slotWidth, slotHeight, 2, i);
+            }
+            capturedCtx.fillStyle = '#fff4f8';
+            capturedCtx.font = 'bold 25px Inter, sans-serif';
+            capturedCtx.textAlign = 'center';
+            capturedCtx.fillText('20 • 10 • 2026', width / 2, height - 18);
+            capturedCtx.fillStyle = '#aaa0a7';
+            capturedCtx.font = '14px Inter, sans-serif';
+            capturedCtx.save();
+            capturedCtx.translate(sideWidth / 2, height / 2);
+            capturedCtx.rotate(-Math.PI / 2);
+            capturedCtx.fillText('MEMORIES', 0, 0);
+            capturedCtx.restore();
+        }
+
+        function drawFourPhotoFrame() {
+            const width = 720;
+            const height = 1480;
+            capturedCanvas.width = width;
+            capturedCanvas.height = height;
+            capturedCtx.fillStyle = '#f3cf73';
+            capturedCtx.fillRect(0, 0, width, height);
+            capturedCtx.fillStyle = '#715344';
+            capturedCtx.font = 'bold 30px "Dancing Script", cursive';
+            capturedCtx.textAlign = 'center';
+            capturedCtx.fillText('Little moments, big love', width / 2, 38);
+            const slotX = 70;
+            const slotWidth = width - slotX * 2;
+            const slotHeight = 300;
+            for (let i = 0; i < 4; i++) {
+                const y = 62 + i * 342;
+                capturedCtx.fillStyle = '#7a5542';
+                drawRoundedSlot(capturedCtx, slotX - 8, y - 8, slotWidth + 16, slotHeight + 16, 24);
+                capturedCtx.fill();
+                drawPhotoSlot(capturedCtx, photoShots[i], slotX, y, slotWidth, slotHeight, 18, i);
+                capturedCtx.fillStyle = i % 2 ? '#fff8d9' : '#ffefb2';
+                capturedCtx.beginPath();
+                capturedCtx.arc(26, y + slotHeight / 2, 11, 0, Math.PI * 2);
+                capturedCtx.arc(width - 26, y + slotHeight / 2, 11, 0, Math.PI * 2);
+                capturedCtx.fill();
+            }
+            capturedCtx.fillStyle = '#715344';
+            capturedCtx.font = 'bold 20px Inter, sans-serif';
+            capturedCtx.fillText('20/10/2026  ♥  FAMILY', width / 2, height - 22);
+        }
+
+        function drawPastelPhotoStrip() {
+            const width = 800;
+            const height = 1450;
+            capturedCanvas.width = width;
+            capturedCanvas.height = height;
+            capturedCtx.fillStyle = '#fff8ee';
+            capturedCtx.fillRect(0, 0, width, height);
+            drawRoundedSlot(capturedCtx, 22, 22, width - 44, height - 44, 54);
+            capturedCtx.strokeStyle = '#e7bcb8';
+            capturedCtx.lineWidth = 8;
+            capturedCtx.stroke();
+            const slotX = 76;
+            const slotWidth = width - slotX * 2;
+            const slotHeight = 390;
+            for (let i = 0; i < 3; i++) {
+                const y = 72 + i * 435;
+                capturedCtx.fillStyle = '#f7e1dc';
+                drawRoundedSlot(capturedCtx, slotX - 9, y - 9, slotWidth + 18, slotHeight + 18, 46);
+                capturedCtx.fill();
+                drawPhotoSlot(capturedCtx, photoShots[i], slotX, y, slotWidth, slotHeight, 38, i);
+                capturedCtx.fillStyle = '#fffdf8';
+                capturedCtx.font = '30px Arial';
+                capturedCtx.textAlign = 'left';
+                capturedCtx.fillText('✦', slotX + 20, y + 45);
+                capturedCtx.textAlign = 'right';
+                capturedCtx.fillText('♥', slotX + slotWidth - 20, y + slotHeight - 18);
+            }
+            capturedCtx.fillStyle = '#a36e72';
+            capturedCtx.font = 'bold 22px "Dancing Script", cursive';
+            capturedCtx.textAlign = 'center';
+            capturedCtx.fillText('Our sweetest memories', width / 2, height - 22);
+        }
+
+        function renderPhotobooth() {
+            if (currentSelectedFrame === 7) {
+                drawFilmStrip();
+            } else if (currentSelectedFrame === 8) {
+                drawFourPhotoFrame();
+            } else if (currentSelectedFrame === 9) {
+                drawPastelPhotoStrip();
+            } else if (photoShots.length > 0) {
+                capturedCanvas.width = photoShots[0].width;
+                capturedCanvas.height = photoShots[0].height;
+                capturedCtx.drawImage(photoShots[0], 0, 0);
+                drawFrame(capturedCtx, capturedCanvas.width, capturedCanvas.height, currentSelectedFrame);
+            } else {
+                capturedCanvas.width = 1;
+                capturedCanvas.height = 1;
+            }
+            updateShotProgress();
+        }
+
+        function drawFrame(ctx, width, height, frameType) {
+            ctx.save();
+            if (frameType === 0) {
+                // Heart Pink Border
+                ctx.strokeStyle = '#ff7eb3';
+                ctx.lineWidth = 20;
+                ctx.strokeRect(10, 10, width-20, height-20);
+                ctx.fillStyle = '#ff7eb3';
+                ctx.font = '50px Arial';
+                ctx.fillText('💖', 20, 60);
+                ctx.fillText('💖', width - 70, 60);
+                ctx.fillText('💖', 20, height - 20);
+                ctx.fillText('💖', width - 70, height - 20);
+            } else if (frameType === 1) {
+                // Polaroid
+                ctx.fillStyle = 'white';
+                ctx.fillRect(0, 0, width, 40); // Top
+                ctx.fillRect(0, 0, 40, height); // Left
+                ctx.fillRect(width-40, 0, 40, height); // Right
+                ctx.fillRect(0, height-120, width, 120); // Bottom thick
+                ctx.fillStyle = '#333';
+                ctx.font = 'italic 40px "Dancing Script", cursive';
+                ctx.textAlign = 'center';
+                ctx.fillText('20/10/2026 - Our Memories', width/2, height - 40);
+            } else if (frameType === 2) {
+                // Gold Vintage
+                ctx.strokeStyle = '#ffd700';
+                ctx.lineWidth = 10;
+                ctx.strokeRect(20, 20, width-40, height-40);
+                ctx.strokeStyle = 'white';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(35, 35, width-70, height-70);
+                ctx.fillStyle = '#ffd700';
+                ctx.font = 'bold 30px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('✨ Happy Women\'s Day ✨', width/2, 65);
+            } else if (frameType === 3) {
+                // Sweet blush
+                const gradient = ctx.createLinearGradient(0, 0, width, height);
+                gradient.addColorStop(0, '#ff4f91');
+                gradient.addColorStop(1, '#ffc1d6');
+                ctx.strokeStyle = gradient;
+                ctx.lineWidth = Math.max(12, width * 0.018);
+                ctx.strokeRect(12, 12, width - 24, height - 24);
+                ctx.fillStyle = '#fff7fa';
+                ctx.font = `bold ${Math.max(24, width * 0.045)}px "Dancing Script", cursive`;
+                ctx.textAlign = 'center';
+                ctx.fillText('Made with love', width / 2, height - 28);
+                ctx.font = `${Math.max(24, width * 0.05)}px Arial`;
+                ctx.textAlign = 'left';
+                ctx.fillText('♥', 24, 52);
+                ctx.textAlign = 'right';
+                ctx.fillText('♥', width - 24, 52);
+            } else if (frameType === 4) {
+                // Classic film strip
+                const stripWidth = Math.max(42, width * 0.09);
+                ctx.fillStyle = 'rgba(24, 24, 32, 0.88)';
+                ctx.fillRect(0, 0, stripWidth, height);
+                ctx.fillRect(width - stripWidth, 0, stripWidth, height);
+                const holeSize = Math.max(10, stripWidth * 0.32);
+                const holeInset = (stripWidth - holeSize) / 2;
+                const holeGap = holeSize * 0.75;
+                ctx.fillStyle = '#fff4f8';
+                for (let y = holeGap / 2; y < height; y += holeSize + holeGap) {
+                    ctx.fillRect(holeInset, y, holeSize, holeSize * 0.65);
+                    ctx.fillRect(width - stripWidth + holeInset, y, holeSize, holeSize * 0.65);
+                }
+                ctx.fillStyle = 'white';
+                ctx.font = `bold ${Math.max(16, width * 0.025)}px Inter, sans-serif`;
+                ctx.textAlign = 'center';
+                ctx.fillText('20 • 10 • 2026', width / 2, height - 18);
+            } else if (frameType === 5) {
+                // Lavender elegance
+                const gradient = ctx.createLinearGradient(0, 0, width, height);
+                gradient.addColorStop(0, '#d8b4fe');
+                gradient.addColorStop(1, '#8b5cf6');
+                ctx.strokeStyle = gradient;
+                ctx.lineWidth = Math.max(10, width * 0.014);
+                ctx.strokeRect(14, 14, width - 28, height - 28);
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
+                ctx.lineWidth = 3;
+                ctx.strokeRect(28, 28, width - 56, height - 56);
+                ctx.fillStyle = 'white';
+                ctx.font = `bold ${Math.max(18, width * 0.03)}px "Dancing Script", cursive`;
+                ctx.textAlign = 'center';
+                ctx.fillText('A little moment of happiness', width / 2, height - 34);
+            } else if (frameType === 6) {
+                // Spring garden
+                const border = Math.max(14, width * 0.022);
+                ctx.fillStyle = 'rgba(255, 250, 240, 0.92)';
+                ctx.fillRect(0, 0, width, border);
+                ctx.fillRect(0, height - border, width, border);
+                ctx.fillStyle = '#f472b6';
+                ctx.font = `${Math.max(22, width * 0.04)}px Arial`;
+                ctx.textAlign = 'left';
+                ctx.fillText('✿', 12, border + 10);
+                ctx.fillText('✿', 12, height - 4);
+                ctx.textAlign = 'right';
+                ctx.fillText('✿', width - 12, border + 10);
+                ctx.fillText('✿', width - 12, height - 4);
+                ctx.fillStyle = '#52734d';
+                ctx.font = `bold ${Math.max(15, width * 0.023)}px Inter, sans-serif`;
+                ctx.textAlign = 'center';
+                ctx.fillText('Bloom with love', width / 2, height - border / 2 + 6);
+            }
+            ctx.restore();
+        }
+
+        function selectFrame(index) {
+            currentSelectedFrame = index;
+            document.querySelectorAll('.frame-btn').forEach((btn, i) => {
+                if(i === index) btn.classList.add('active');
+                else btn.classList.remove('active');
+            });
+            renderPhotobooth();
+        }
+
+        function downloadPhoto() {
+            if (!capturedCanvas.width || !capturedCanvas.height || !photoShots.length) {
+                document.getElementById('status-text').innerText = 'Hãy chụp ít nhất một ảnh trước khi tải xuống.';
+                return;
+            }
+            const dataUrl = capturedCanvas.toDataURL('image/png');
+            const link = document.createElement('a');
+            link.download = '20_10_2026_Memory.png';
+            link.href = dataUrl;
+            link.click();
+        }
+
+        function closePhotobooth() {
+            document.getElementById('photobooth-ui').style.display = 'none';
+            photoShots.length = 0;
+            photoboothHasOpened = false;
+            isPhotoboothActive = false;
+            isCountdownActive = false;
+            isPhotoSequenceActive = false;
+            setCooldown(1000);
+        }
+
+
+        const envelope = document.getElementById('envelope');
+        let gestureCooldown = false;
+
+        function detectGesture(landmarks) {
+            // Helper to check if finger is extended
+            // Finger tip Y should be higher (lesser value) than PIP joint Y
+            const isExtended = (tip, pip) => landmarks[tip].y < landmarks[pip].y;
+
+            const indexOut = isExtended(8, 6);
+            const middleOut = isExtended(12, 10);
+            const ringOut = isExtended(16, 14);
+            const pinkyOut = isExtended(20, 18);
+
+            // Open Hand: All fingers extended
+            if (indexOut && middleOut && ringOut && pinkyOut) return 'OPEN_HAND';
+            // Fist: No fingers extended
+            if (!indexOut && !middleOut && !ringOut && !pinkyOut) return 'FIST';
+            // Peace Sign (V): Index and Middle out, Ring and Pinky folded
+            if (indexOut && middleOut && !ringOut && !pinkyOut) return 'PEACE';
+
+            return 'NONE';
+        }
+
+        function handleGesture(gesture) {
+            if (gestureCooldown) return;
+            
+            // Don't trigger letter animations while taking photos
+            if (isPhotoboothActive) return;
+
+            if (gesture === 'OPEN_HAND') {
+                if (!envelope.classList.contains('is-open')) {
+                    envelope.classList.add('is-open');
+                    setCooldown();
+                }
+            } else if (gesture === 'FIST') {
+                if (envelope.classList.contains('is-open')) {
+                    envelope.classList.remove('is-open');
+                    setCooldown();
+                }
+            } else if (gesture === 'PEACE') {
+                startPhotoboothCountdown();
+                setCooldown(3000); // Longer cooldown for photo trigger
+            }
+        }
+
+        function setCooldown(ms = 800) {
+            gestureCooldown = true;
+            setTimeout(() => { gestureCooldown = false; }, ms);
+        }
+
+        async function initMediaPipe() {
+            const statusInd = document.getElementById('status-indicator');
+            const statusText = document.getElementById('status-text');
+
+            try {
+                const hands = new Hands({
+                    locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+                });
+
+                hands.setOptions({
+                    maxNumHands: 1, // Focus on 1 hand for gestures to avoid confusion
+                    modelComplexity: 1,
+                    minDetectionConfidence: 0.6,
+                    minTrackingConfidence: 0.6
+                });
+
+                hands.onResults(results => {
+                    if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+                        const landmarks = results.multiHandLandmarks[0];
+                        
+                        // Update interaction points for antigravity
+                        const pointsToTrack = [0, 8]; 
+                        interactionPoints = pointsToTrack.map(id => ({
+                            x: (1 - landmarks[id].x) * bgCanvas.width, // Mirrored
+                            y: landmarks[id].y * bgCanvas.height
+                        }));
+
+                        // Detect Gesture
+                        const gesture = detectGesture(landmarks);
+                        handleGesture(gesture);
+                    } else {
+                        interactionPoints = [];
+                    }
+                });
+
+                const camera = new Camera(videoElement, {
+                    onFrame: async () => {
+                        await hands.send({image: videoElement});
+                    },
+                    width: 640,
+                    height: 480
+                });
+
+                await camera.start();
+                
+                statusInd.classList.replace('bg-yellow-400', 'bg-green-400');
+                statusText.innerText = "Hệ thống sẵn sàng!";
+                
+            } catch (error) {
+                console.error("MediaPipe Error:", error);
+                statusInd.classList.replace('bg-yellow-400', 'bg-red-400');
+                statusText.innerText = "Lỗi Camera. Hãy tải lại trang.";
+            }
+        }
+
+        function initMainExperience() {
+            initBackgroundCanvas();
+            // Delay MediaPipe initialization slightly to ensure CSS transitions finish smoothly
+            setTimeout(initMediaPipe, 800); 
+        }
+
+    </script>
+</body>
+</html>
